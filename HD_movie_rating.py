@@ -26,7 +26,7 @@ class MoviesBreakdown(MRJob):
     # takes the a key, and subset the values for that key and return a key-value pairs
     # this will optimize the run after running the mapper method
     # can be used to decrease the total data transfer.
-    def combine_movie_rating_and_add(self, key,values):
+    def combine_movie_rating_and_add(self, key, values):
         yield key, sum(values)
 
 
@@ -37,7 +37,8 @@ class MoviesBreakdown(MRJob):
     def reducer_count_ratings (self, key, values):
         yield None, (sum(values), key)
 
-    #sort
+    #Sorter
+    #
     def reducer_sort_counts(self, _, values):
         for count, key in sorted(values, reverse=True):
             yield int(key), count
