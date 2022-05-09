@@ -38,7 +38,7 @@ class MoviesBreakdown(MRJob):
         yield None, (sum(values), key)
 
     #Sorter
-    #
+    #reverse true to show descending order.
     def reducer_sort_counts(self, _, values):
         for count, key in sorted(values, reverse=True):
             yield int(key), count
