@@ -1,4 +1,3 @@
-from functools import reduce
 from mrjob.job import MRJob
 from mrjob.step import MRStep
 
@@ -15,30 +14,34 @@ class MoviesBreakdown(MRJob):
             )
         ]
 
-    # The mapper() method takes a key and a value as args
+    # The mapper() - for 6 points
+    # method takes a key and a value as args
     # in this case, the key is ignored and a single line of text input is the value) 
     # and yields as many key-value pairs as it likes.
     def mapper_get_ratings(self, _, line):
         (userID, movieID, rating, timestamp) = line.split('\t')
         yield movieID, 1
 
-    # The Combiner
+   
+    # The reducer - for 6 points
+    # method takes all the key-values and counts all the values 
+    # and add them together to the same key which then show the total
+    # value for each rating key
+    # The sum will add up and give total 
+    def reducer_count_ratings (self, key, values):
+        yield None, (sum(values), key)
+
+
+    # The Combiner - for 8 points
     # takes the a key, and subset the values for that key and return a key-value pairs
     # this will optimize the run after running the mapper method
     # can be used to decrease the total data transfer.
     def combine_movie_rating_and_add(self, key, values):
         yield key, sum(values)
 
-
-    # The reducer method takes all the key-values and counts all the values 
-    # and add them together toi the same key which then show the total
-    # value for each rating key
-    # The sum will add up and give total 
-    def reducer_count_ratings (self, key, values):
-        yield None, (sum(values), key)
-
-    #Sorter
-    #reverse true to show descending order of the movies.
+    # Sorter - For 8 points
+    # Reverse true to show descending order of the movies.
+    # 
     def reducer_sort_counts(self, _, values):
         for count, key in sorted(values, reverse=True):
             yield int(key), count
