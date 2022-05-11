@@ -1,7 +1,7 @@
 from mrjob.job import MRJob
 from mrjob.step import MRStep
 
-class MoviesBreakdown(MRJob):
+class RatingJob(MRJob):
     def steps(self):
         return[
             MRStep(
@@ -16,8 +16,7 @@ class MoviesBreakdown(MRJob):
 
     # The mapper() - for 6 points
     # method takes a key and a value as args
-    # in this case, the key is ignored and a single line of text input is the value) 
-    # and yields as many key-value pairs as it likes.
+    # so, Get the id's and maps all the movies.
     def mapper_get_ratings(self, _, line):
         (userID, movieID, rating, timestamp) = line.split('\t')
         yield movieID, 1
@@ -28,26 +27,26 @@ class MoviesBreakdown(MRJob):
     # and add them together to the same key which then show the total
     # value for each rating key
     # The sum will add up and give total 
-    def reducer_count_ratings (self, key, values):
-        yield None, (sum(values), key)
+    def reducer_count_ratings (self, movieID, rating):
+        yield None, (sum(rating), movieID)
 
 
     # The Combiner - for 8 points
     # takes the a key, and subset the values for that key and return a key-value pairs
     # this will optimize the run after running the mapper method
     # can be used to decrease the total data transfer.
-    def combine_movie_rating_and_add(self, key, values):
-        yield key, sum(values)
+    def combine_movie_rating_and_add(self, movieID, rating):
+        yield movieID, sum(rating)
 
     # Sorter - For 8 points
-    # Reverse true to show descending order of the movies.
-    # 
+    # sort the movies based on the movie rating.
+    # the Reverse parameter is set to true to show descending order of the movies.
     def reducer_sort_counts(self, _, values):
-        for count, key in sorted(values, reverse=True):
-            yield int(key), count
+        for count, movieID in sorted(values, reverse=True):
+            yield int(movieID), count
 
 
 if __name__ == '__main__':
-    MoviesBreakdown.run()
+    RatingJob.run()
 
     ##example code: https://stackoverflow.com/questions/53707962/mrjob-sort-reducer-output
